@@ -72,12 +72,17 @@ export default function ProfileForm() {
 
   const measurementUnits = form.watch("measurementUnits");
 
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setLoading(true);
     try {
       const resWorkoutPlan = await generateWorkoutPlan(data);
       setWorkoutPlan(resWorkoutPlan);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -454,9 +459,9 @@ export default function ProfileForm() {
             </CardContent>
           </Card>
 
-          <Button type="submit" className="w-full">
-            Submit
-          </Button>
+            <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Submitting..." : "Submit"}
+            </Button>
         </form>
       </Form>
       {workoutPlan && ( // Display the workout plan if available
