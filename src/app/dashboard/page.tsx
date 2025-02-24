@@ -2,13 +2,13 @@
 
 import Nav from "@/components/nav";
 import ProfileForm from "@/components/profile-form";
-import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs'; // Import from client
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from "@/utils/supabase/client";
 
 export default function Page() {
-  const [supabase] = useState(() => createClientComponentClient());
-  const [user, setUser] = useState<User | null>(null);
+  const [supabase] = useState(() => createClient());
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {

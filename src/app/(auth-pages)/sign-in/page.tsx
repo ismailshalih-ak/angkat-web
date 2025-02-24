@@ -1,19 +1,19 @@
 "use client";
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useState, useEffect } from 'react'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client';
 
 export default function SignIn() {
-  const [supabaseClient] = useState(() => createClientComponentClient())
+  const [supabase] = useState(() => createClient());
   const router = useRouter()
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function getSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession()
+      const { data: { session } } = await supabase.auth.getSession()
 
       if (session) {
         router.push('/dashboard')
@@ -21,12 +21,12 @@ export default function SignIn() {
     }
 
     getSession()
-  }, [router, supabaseClient])
+  }, [router, supabase])
 
   const handleSignInWithGoogle = async () => {
     setLoading(true);
     try {
-      const { error } = await supabaseClient.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
