@@ -5,10 +5,11 @@ import ProfileForm from "@/components/profile-form";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export default function Page() {
   const [supabase] = useState(() => createClient());
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User|null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -24,9 +25,16 @@ export default function Page() {
     getUserData();
   }, [supabase, router]);
 
-  if (!user) {
-    return <div>Loading...</div>; // Or a more informative message
-  }
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get('code');
+
+    if (code) {
+      // Remove the code parameter from the URL
+      url.searchParams.delete('code');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  }, []);
 
   return (
     <div>
