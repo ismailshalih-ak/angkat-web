@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { z } from "zod";
 import { OpenAI } from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -7,17 +6,12 @@ import { createClient } from "@/utils/supabase/server";
 import { weeklyWorkoutPlanSchema } from "@/schemas/workout-plan";
 
 export async function POST(request: NextRequest) {
-  // const supabase = await createClient();;
-  // const { data: { user }, error } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // if (error) {
-  //   console.error('Error fetching user:', error);
-  //   return NextResponse.json({ message: "Error fetching user" }, { status: 500 });
-  // }
-
-  // if (!user) {
-  //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  // }
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const openai = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
