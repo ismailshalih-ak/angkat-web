@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { WeeklyWorkoutPlan } from "@/schemas/workout-plan";
 
 const formSchema = z.object({
   // Section 1
@@ -30,7 +31,7 @@ const formSchema = z.object({
 
   // Section 2
   availableDays: z.array(z.string()).optional(),
-  sessionsPerWeek: z.number().min(1).optional(),
+  maxSessionsPerWeek: z.number().min(1).optional(),
   sessionDuration: z.enum(["30", "45", "60", "75", "90"]).optional(),
   timeOfDay: z.enum(["morning", "afternoon", "evening"]).optional(),
 
@@ -46,14 +47,7 @@ const formSchema = z.object({
 });
 
 export default function ProfileForm() {
-  const [workoutPlan, setWorkoutPlan] = useState<{
-    [day: string]: {
-      exercise: string;
-      sets: number;
-      reps: number;
-      weight: number;
-    }[];
-  } | null>(null);
+  const [workoutPlan, setWorkoutPlan] = useState<WeeklyWorkoutPlan | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,7 +58,7 @@ export default function ProfileForm() {
       weight: undefined,
       bodyFat: undefined,
       availableDays: [],
-      sessionsPerWeek: 1,
+      maxSessionsPerWeek: undefined,
       sessionDuration: undefined,
       timeOfDay: undefined,
       goal: undefined,
@@ -80,44 +74,30 @@ export default function ProfileForm() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const workoutPlan = generateWorkoutPlan(data);
-      setWorkoutPlan(workoutPlan);
+      const resWorkoutPlan = await generateWorkoutPlan(data);
+      setWorkoutPlan(resWorkoutPlan);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const generateWorkoutPlan = (data: z.infer<typeof formSchema>)=> {
+  const generateWorkoutPlan = async (data: z.infer<typeof formSchema>)=> {
   
-    const workoutPlan = {
-      monday: [
-        { exercise: "Squats", sets: 3, reps: 8, weight: 100 },
-        { exercise: "Lunges", sets: 3, reps: 10, weight: 80 },
-        { exercise: "Leg Press", sets: 3, reps: 12, weight: 120 },
-      ],
-      tuesday: [
-        { exercise: "Bench Press", sets: 3, reps: 8, weight: 100 },
-        { exercise: "Incline Dumbbell Press", sets: 3, reps: 10, weight: 80 },
-        { exercise: "Cable Flyes", sets: 3, reps: 12, weight: 60 },
-      ],
-      wednesday: [
-        { exercise: "Deadlifts", sets: 3, reps: 8, weight: 120 },
-        { exercise: "Bent Over Barbell Rows", sets: 3, reps: 10, weight: 100 },
-        { exercise: "Pull-ups", sets: 3, reps: 12, weight: 0 },
-      ],
-      thursday: [
-        { exercise: "Leg Extensions", sets: 3, reps: 12, weight: 80 },
-        { exercise: "Leg Curls", sets: 3, reps: 10, weight: 60 },
-        { exercise: "Calf Raises", sets: 3, reps: 12, weight: 40 },
-      ],
-      friday: [
-        { exercise: "Shoulder Press", sets: 3, reps: 8, weight: 80 },
-        { exercise: "Lateral Raises", sets: 3, reps: 10, weight: 60 },
-        { exercise: "Rear Delt Flyes", sets: 3, reps: 12, weight: 40 },
-      ],
-    };
+    const response = await fetch('/api/generate-workout-plan', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate workout plan');
+    }
+
+    const resWorkoutPlan = await response.json();
   
-    return workoutPlan;
+    return resWorkoutPlan.workoutPlan;
   };
 
   return (
@@ -200,7 +180,7 @@ export default function ProfileForm() {
                       Height ({measurementUnits === "metric" ? "cm" : "in"})
                     </FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)} />
                     </FormControl>
                   </FormItem>
                 )}
@@ -214,7 +194,7 @@ export default function ProfileForm() {
                       Weight ({measurementUnits === "metric" ? "kg" : "lbs"})
                     </FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)}  />
                     </FormControl>
                   </FormItem>
                 )}
@@ -226,7 +206,7 @@ export default function ProfileForm() {
                   <FormItem>
                     <FormLabel>Body Fat Percentage</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)} />
                     </FormControl>
                   </FormItem>
                 )}
@@ -269,12 +249,12 @@ export default function ProfileForm() {
               />
               <FormField
                 control={form.control}
-                name="sessionsPerWeek"
+                name="maxSessionsPerWeek"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sessions per Week</FormLabel>
+                    <FormLabel>Max Sessions per Week</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} min={1} />
+                      <Input type="number" {...field} min={1} max={form.watch("availableDays")?.length || 7} onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)} />
                     </FormControl>
                   </FormItem>
                 )}
@@ -439,7 +419,7 @@ export default function ProfileForm() {
                   <FormItem>
                     <FormLabel>Access to Equipment</FormLabel>
                     <div className="grid grid-cols-2 gap-2">
-                      {["Large Gym", "Small Gym", "Home Equipment", "BodyWeight Only"].map((equipment) => (
+                      {["Large Gym", "Small Gym", "Home Equipment", "Bodyweight Only"].map((equipment) => (
                         <FormItem key={equipment} className="flex items-center space-x-2">
                           <FormControl>
                             <Checkbox
@@ -479,23 +459,24 @@ export default function ProfileForm() {
           </Button>
         </form>
       </Form>
-      {workoutPlan && (
-        <div className="p-4 bg-gray-100 rounded-md shadow-md">
-          <h2 className="text-xl font-bold mb-4">Your Weekly Workout Plan</h2>
-          <ul className="space-y-4">
-            {Object.keys(workoutPlan).map((day) => (
-              <li key={day} className="border-b pb-2">
-                <h3 className="text-lg font-semibold capitalize">{day}</h3>
-                <ul className="mt-2 space-y-1">
-                  {workoutPlan[day].map((exercise) => (
-                    <li key={exercise.exercise} className="text-sm">
-                      {exercise.exercise} - {exercise.sets} sets of {exercise.reps} reps with {exercise.weight} weight
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
+      {workoutPlan && ( // Display the workout plan if available
+        <div>
+          {/* {JSON.stringify(workoutPlan)} */}
+          <h2 className="text-xl font-bold">Generated Workout Plan</h2>
+          <p>{workoutPlan.workoutPlanName}</p>
+          {workoutPlan.sessions.map((session, index) => (
+            <div key={index} className="mt-4">
+              <h3 className="text-lg font-semibold">{session.dayName} ({session.day})</h3>
+              <ul className="list-disc list-inside">
+          {session.exercises.map((exercise, idx) => (
+            <li key={idx}>
+              <strong>{exercise.name}</strong>: {exercise.sets} sets of {exercise.repetitions} reps
+              {exercise.description && <p className="text-sm text-gray-600">{exercise.description}</p>}
+            </li>
+          ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
     </div>

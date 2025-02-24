@@ -38,7 +38,7 @@ export default function Nav() {
   };
 
   return (
-    <nav className="relative flex items-center justify-between p-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-white shadow-md">
       {/* Left: App Icon */}
       <div className="flex items-center">
         <img src="/icon.png" alt="App Icon" className="h-8 w-8" />
@@ -48,11 +48,19 @@ export default function Nav() {
       {/* Middle: Call to Action */}
       <div className="mx-auto">
         {user ? (
-          <Button onClick={() => router.push('/dashboard')}>
-            My Workout Plan
-          </Button>
+          <></>
         ) : (
-          <Button>Generate Workout Plan</Button>
+          <>
+              <Button variant="link" onClick={() => router.push('/#features')}>
+                Features
+              </Button>
+              <Button variant="link" onClick={() => router.push('/#pricing')}>
+                Pricing
+              </Button>
+              <Button variant="link" onClick={() => router.push('/blog')}>
+                Blog
+              </Button>
+          </>
         )}
       </div>
 
