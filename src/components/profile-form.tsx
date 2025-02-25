@@ -465,32 +465,45 @@ export default function ProfileForm() {
         </form>
       </Form>
       {workoutPlan && (
-      <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-        {/* <pre>{JSON.stringify(workoutPlan)}</pre> */}
-        <h2 className="text-2xl font-bold mb-4 text-center">Generated Workout Plan</h2>
-        <p className="text-lg font-semibold mb-6 text-center">{workoutPlan.workoutPlanName}</p>
-        <div className="grid gap-6 md:grid-cols-2">
-          {workoutPlan.sessions.map((session, index) => (
-            <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
-              <h3 className="text-xl font-semibold mb-2">{session.dayName} ({session.day})</h3>
-              {/* <ul className="list-disc list-inside space-y-2"> */}
-                {session.exercises.map((exercise, idx) => (
-                  <div key={idx} className="border-b pb-2 mb-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{exercise.name}</span>
-                      <span>{exercise.sets} sets x {exercise.repetitions} reps</span>
+        <div className="p-6 bg-gray-100 rounded-lg shadow-md">
+          {/* <pre>{JSON.stringify(workoutPlan)}</pre> */}
+          <h2 className="text-2xl font-bold mb-4 text-center">Generated Workout Plan</h2>
+          <p className="text-lg font-semibold mb-6 text-center">{workoutPlan.workoutPlanName}</p>
+          <div className="grid gap-6 md:grid-cols-2">
+            {workoutPlan.sessions.map((session, index) => (
+              <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
+                <h3 className="text-xl font-semibold mb-2">{session.dayName} ({session.day})</h3>
+                  {session.exercises.map((exercise, idx) => (
+                    <div key={idx} className="border-b pb-2 mb-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">{exercise.name}</span>
+                        <span>{exercise.sets} sets x {exercise.repetitions} reps</span>
+                      </div>
+                      {exercise.description && (
+                        <p className="text-sm text-gray-600 mt-1">{exercise.description}</p>
+                      )}
                     </div>
-                    {exercise.description && (
-                      <p className="text-sm text-gray-600 mt-1">{exercise.description}</p>
-                    )}
-                  </div>
-                ))}
-              {/* </ul> */}
-            </div>
-          ))}
+                  ))}
+              </div>
+            ))}
+          </div>
+          <Button onClick={async () => {
+            const response = await fetch('/api/save-workout-plan', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({profileFormData: form.getValues(), workoutPlan: workoutPlan}),
+                });
+
+                if (!response.ok) {
+                throw new Error('Failed to save workout plan');
+                }
+
+                alert('Workout plan saved successfully');
+          }}>Save</Button>
         </div>
-      </div>
-    )}
+      )}
 
     </div>
   );
