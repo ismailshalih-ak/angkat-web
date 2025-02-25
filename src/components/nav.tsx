@@ -13,10 +13,12 @@ import {
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
 import { User } from '@supabase/supabase-js';
+import { Menu, X } from 'lucide-react';
 
 export default function Nav() {
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,7 +30,6 @@ export default function Nav() {
     getUserData();
   }, [supabase]);
 
-  // Function to get initials from the user's name
   const getInitials = (user: User) => {
     if (user?.user_metadata?.firstName && user?.user_metadata?.lastName) {
       return `${user.user_metadata.firstName.charAt(0)}${user.user_metadata.lastName.charAt(0)}`.toUpperCase();
@@ -36,78 +37,118 @@ export default function Nav() {
     if (user?.email) {
       return user.email.charAt(0).toUpperCase();
     }
-    return "AB"; // Default initials if no name or email
+    return "AB";
   };
+
+  const navLinks = user ? [
+    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Workout', path: '/dashboard/workout' },
+    { name: 'Progress', path: '/dashboard/progress' },
+  ] : [
+    { name: 'Features', path: '/#features' },
+    { name: 'Pricing', path: '/#pricing' },
+    { name: 'Blog', path: '/blog' },
+  ];
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-white shadow-md">
-      {/* Left: App Icon */}
-      <div className="flex items-center">
-        <Image src="/icon.png" alt="App Icon" width={32} height={32} className="h-8 w-8" />
-        <span className="ml-2 text-xl font-bold">Angkat</span>
-      </div>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-white shadow-md md:px-6">
+        {/* Left: App Icon and Mobile Menu Button */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+          <div className="flex items-center">
+            <Image src="/icon.png" alt="App Icon" width={32} height={32} className="h-8 w-8" />
+            <span className="ml-2 text-xl font-bold">Angkat</span>
+          </div>
+        </div>
 
-      {/* Middle: Call to Action */}
-      <div className="mx-auto">
-        {user ? (
-        <>
-          <Button variant="link" onClick={() => router.push('/dashboard')}>
-            Dashboard
-          </Button>
-          <Button variant="link" onClick={() => router.push('/dashboard/workout')}>
-            Workout
-          </Button>
-          <Button variant="link" onClick={() => router.push('/dashboard/progress')}>
-            Progress
-          </Button>
-        </>
-        ) : (
-        <>
-          <Button variant="link" onClick={() => router.push('/#features')}>
-            Features
-          </Button>
-          <Button variant="link" onClick={() => router.push('/#pricing')}>
-            Pricing
-          </Button>
-          <Button variant="link" onClick={() => router.push('/blog')}>
-            Blog
-          </Button>
-        </>
-        )}
-      </div>
+        {/* Middle: Desktop Navigation */}
+        <div className="hidden md:flex gap-4 mx-auto">
+          {navLinks.map((link) => (
+            <Button
+              key={link.name}
+              variant="link"
+              onClick={() => {
+                router.push(link.path);
+                setIsMenuOpen(false);
+              }}
+            >
+              {link.name}
+            </Button>
+          ))}
+        </div>
 
-      {/* Right: Auth Buttons / Account Menu */}
-      <div className="flex items-center">
-        {user ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-          <Avatar>
-            <AvatarImage src={user?.user_metadata?.avatar_url || "/path/to/profile-image.jpg"} alt="Profile" />
-            <AvatarFallback>{getInitials(user)}</AvatarFallback>
-          </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-          {/* <DropdownMenuItem onClick={() => router.push('/dashboard/plans')}>My Plans</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>Profile</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Help/FAQs</DropdownMenuItem> */}
-          <DropdownMenuItem onClick={async () => {
-            await supabase.auth.signOut();
-            router.push('/'); // Redirect to landing page after sign out
-          }}>Sign Out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        ) : (
-        <>
-          <Button variant="ghost" onClick={() => router.push('/sign-in')}>
-          Sign In
-          </Button>
-        </>
+        {/* Right: Auth Buttons / Account Menu */}
+        <div className="flex items-center gap-2">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar>
+                  <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                  <AvatarFallback>{getInitials(user)}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.push('/');
+                }}>
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="ghost"
+              className="hidden md:inline-flex"
+              onClick={() => router.push('/sign-in')}
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-lg md:hidden">
+            <div className="flex flex-col p-2">
+              {navLinks.map((link) => (
+                <Button
+                  key={link.name}
+                  variant="ghost"
+                  className="justify-start"
+                  onClick={() => {
+                    router.push(link.path);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {link.name}
+                </Button>
+              ))}
+              {!user && (
+                <Button
+                  variant="default"
+                  className="mt-2"
+                  onClick={() => {
+                    router.push('/sign-in');
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Sign In
+                </Button>
+              )}
+            </div>
+          </div>
         )}
-      </div>
       </nav>
-      <div className="h-16"></div> {/* Spacer to prevent content clipping */}
+      <div className="h-16"></div>
     </>
   );
 }
