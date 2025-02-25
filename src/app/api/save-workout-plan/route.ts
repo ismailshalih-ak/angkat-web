@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
     {
       user_id: user.id,
       profile_form_data: profileFormData,
-      generated_workout_plan: workoutPlan
+      generated_workout_plan: workoutPlan,
+      generated_workout_version: 1
     }
   ]).select();
 

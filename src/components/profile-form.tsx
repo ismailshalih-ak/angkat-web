@@ -79,6 +79,7 @@ export default function ProfileForm() {
     try {
       const resWorkoutPlan = await generateWorkoutPlan(data);
       setWorkoutPlan(resWorkoutPlan);
+      saveWorkoutPlan(resWorkoutPlan);
     } catch (error) {
       console.error(error);
     } finally {
@@ -104,6 +105,20 @@ export default function ProfileForm() {
   
     return resWorkoutPlan;
   };
+
+  const saveWorkoutPlan = async (workoutPlan: WeeklyWorkoutPlan) => {
+    const response = await fetch('/api/save-workout-plan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({profileFormData: form.getValues(), workoutPlan: workoutPlan}),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save workout plan');
+      }
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -487,21 +502,6 @@ export default function ProfileForm() {
               </div>
             ))}
           </div>
-          <Button onClick={async () => {
-            const response = await fetch('/api/save-workout-plan', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({profileFormData: form.getValues(), workoutPlan: workoutPlan}),
-                });
-
-                if (!response.ok) {
-                throw new Error('Failed to save workout plan');
-                }
-
-                alert('Workout plan saved successfully');
-          }}>Save</Button>
         </div>
       )}
 
