@@ -37,5 +37,5 @@ export async function POST(request: NextRequest) {
   }
   const workoutPlan = weeklyWorkoutPlanSchema.parse(JSON.parse(content));
 
-  return NextResponse.json({ workoutPlan });
+  return NextResponse.json(workoutPlan);
 }
