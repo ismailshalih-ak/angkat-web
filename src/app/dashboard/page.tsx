@@ -38,7 +38,6 @@ export default function Page() {
 
   return (
     <div>
-      <Nav />
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         <ProfileForm />
       </div>

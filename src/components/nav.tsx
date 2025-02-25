@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -49,7 +49,17 @@ export default function Nav() {
       {/* Middle: Call to Action */}
       <div className="mx-auto">
         {user ? (
-        <></>
+        <>
+          <Button variant="link" onClick={() => router.push('/dashboard')}>
+            Dashboard
+          </Button>
+          <Button variant="link" onClick={() => router.push('/dashboard/workout')}>
+            Workout
+          </Button>
+          <Button variant="link" onClick={() => router.push('/dashboard/progress')}>
+            Progress
+          </Button>
+        </>
         ) : (
         <>
           <Button variant="link" onClick={() => router.push('/#features')}>
@@ -76,10 +86,10 @@ export default function Nav() {
           </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => router.push('/dashboard/plans')}>My Plans</DropdownMenuItem>
+          {/* <DropdownMenuItem onClick={() => router.push('/dashboard/plans')}>My Plans</DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>Profile</DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Help/FAQs</DropdownMenuItem>
+          <DropdownMenuItem>Help/FAQs</DropdownMenuItem> */}
           <DropdownMenuItem onClick={async () => {
             await supabase.auth.signOut();
             router.push('/'); // Redirect to landing page after sign out
