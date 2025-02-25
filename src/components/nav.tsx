@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
+import { User } from '@supabase/supabase-js';
 
 export default function Nav() {
   const [supabase] = useState(() => createClient());
-  const [user, setUser] = useState<{ user_metadata?: { firstName?: string; lastName?: string; avatar_url?: string }; email?: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function Nav() {
   }, [supabase]);
 
   // Function to get initials from the user's name
-  const getInitials = (user) => {
+  const getInitials = (user: User) => {
     if (user?.user_metadata?.firstName && user?.user_metadata?.lastName) {
       return `${user.user_metadata.firstName.charAt(0)}${user.user_metadata.lastName.charAt(0)}`.toUpperCase();
     }
