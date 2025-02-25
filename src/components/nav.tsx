@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { createClient } from '@/utils/supabase/client';
+import Image from 'next/image';
 
 export default function Nav() {
   const [supabase] = useState(() => createClient());
@@ -42,7 +43,7 @@ export default function Nav() {
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-white shadow-md">
       {/* Left: App Icon */}
       <div className="flex items-center">
-        <img src="/icon.png" alt="App Icon" className="h-8 w-8" />
+        <Image src="/icon.png" alt="App Icon" width={32} height={32} className="h-8 w-8" />
         <span className="ml-2 text-xl font-bold">Angkat</span>
       </div>
 

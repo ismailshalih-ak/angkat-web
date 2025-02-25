@@ -1,9 +1,7 @@
 "use client";
 
-import Nav from "@/components/nav";
-import ProfileForm from "@/components/profile-form";
 import { Button } from "@/components/ui/button";
-import { Globe, Smartphone } from "lucide-react";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
@@ -34,12 +32,12 @@ export default function Page() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Nav />
-
       <main className="relative flex-grow flex items-center justify-center p-8 h-screen">
-        <img
+        <Image
           src="/main-bg.jpg"
           alt="Background"
+          width={1920}
+          height={1080}
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="relative z-10 text-center">
