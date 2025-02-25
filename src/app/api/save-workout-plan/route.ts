@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { OpenAI } from "openai";
-import { zodResponseFormat } from "openai/helpers/zod";
 import { createClient } from "@/utils/supabase/server";
-import { weeklyWorkoutPlanSchema } from "@/schemas/workout-plan";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
