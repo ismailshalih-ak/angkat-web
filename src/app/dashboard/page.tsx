@@ -23,21 +23,21 @@ export default function Page() {
       if (!user) {
         router.push("/sign-in");
       }
+
+      if(user) {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+
+        if (code) {
+          // Remove the code parameter from the URL
+          url.searchParams.delete('code');
+          window.history.replaceState({}, document.title, url.toString());
+        }
+      }
     }
 
     getUserData();
   }, [supabase, router]);
-
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get('code');
-
-    if (code) {
-      // Remove the code parameter from the URL
-      url.searchParams.delete('code');
-      window.history.replaceState({}, document.title, url.toString());
-    }
-  }, []);
   
   useEffect(() => {
     async function fetchLatestWorkoutPlan() {
