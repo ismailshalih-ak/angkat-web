@@ -1,5 +1,6 @@
 "use client";
 
+import Nav from "@/components/nav";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
@@ -32,6 +33,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
+      <Nav />
       <main className="relative flex-grow flex items-center justify-center p-8 h-screen">
         <Image
           src="/main-bg.jpg"
