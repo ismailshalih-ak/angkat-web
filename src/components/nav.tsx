@@ -14,6 +14,7 @@ import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
 import { User } from '@supabase/supabase-js';
 import { Menu, X, User as UserIcon, Settings, LogOut } from 'lucide-react';
+import { UnderConstructionTooltip } from '@/components/under-construction-tooltip';
 
 export default function Nav() {
   const [supabase] = useState(() => createClient());
@@ -42,8 +43,8 @@ export default function Nav() {
 
   const navLinks = user ? [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Workout', path: '/dashboard/workout' },
-    { name: 'Progress', path: '/dashboard/progress' },
+    { name: 'Workout', path: '/dashboard/workout', underConstruction: true},
+    { name: 'Progress', path: '/dashboard/progress', underConstruction: true },
   ] : [
     { name: 'Features', path: '/#features' },
     { name: 'Pricing', path: '/#pricing' },
@@ -79,7 +80,18 @@ export default function Nav() {
 
             {/* Middle: Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
-              {navLinks.map((link) => (
+            {navLinks.map((link) => (
+              link.underConstruction ? (
+                <UnderConstructionTooltip key={link.name}>
+                  <Button
+                    variant="ghost"
+                    className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg px-4"
+                    // onClick={() => router.push(link.path)}
+                  >
+                    {link.name}
+                  </Button>
+                </UnderConstructionTooltip>
+              ) : (
                 <Button
                   key={link.name}
                   variant="ghost"
@@ -88,8 +100,9 @@ export default function Nav() {
                 >
                   {link.name}
                 </Button>
-              ))}
-            </div>
+              )
+            ))}
+          </div>
 
             {/* Right: Auth Buttons / Account Menu */}
             <div className="flex items-center">
@@ -147,7 +160,7 @@ export default function Nav() {
                   </Button>
                   <Button
                     className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-sm"
-                    onClick={() => router.push('/sign-up')}
+                    onClick={() => router.push('/sign-in')}
                   >
                     Get Started
                   </Button>

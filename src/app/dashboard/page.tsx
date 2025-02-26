@@ -8,6 +8,7 @@ import { WeeklyWorkoutPlan } from "@/schemas/workout-plan";
 import { Button } from "@/components/ui/button";
 import { Calendar, Dumbbell, ChevronRight, Plus, ArrowRight } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { UnderConstructionTooltip } from '@/components/under-construction-tooltip';
 
 export default function Page() {
   const [supabase] = useState(() => createClient());
@@ -194,12 +195,14 @@ export default function Page() {
                   <p className="text-gray-600 mb-4">
                     Record your workouts and track your fitness progress over time.
                   </p>
-                  <Button 
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => router.push('/dashboard/progress')}
-                  >
-                    View Progress
-                  </Button>
+                  <UnderConstructionTooltip>
+                    <Button 
+                      className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                      onClick={() => router.push('/dashboard/progress')}
+                    >
+                      View Progress
+                    </Button>
+                  </UnderConstructionTooltip>
                 </CardContent>
               </Card>
 
@@ -211,12 +214,14 @@ export default function Page() {
                   <p className="text-gray-600 mb-4">
                     View your past workouts and see how you&apos;ve improved over time.
                   </p>
-                  <Button 
-                    className="w-full bg-purple-500 hover:bg-purple-600 text-white"
-                    onClick={() => router.push('/dashboard/history')}
-                  >
-                    View History
-                  </Button>
+                  <UnderConstructionTooltip>
+                    <Button 
+                      className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+                      onClick={() => router.push('/dashboard/history')}
+                    >
+                      View History
+                    </Button>
+                  </UnderConstructionTooltip>
                 </CardContent>
               </Card>
             </div>
