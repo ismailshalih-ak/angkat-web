@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,31 +19,19 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { WeeklyWorkoutPlan } from "@/schemas/workout-plan";
+import { ArrowLeft, Calendar, Dumbbell, Target } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 const formSchema = z.object({
-  // Section 1
-  age: z.number().min(1).optional(),
-  gender: z.enum(["male", "female", "other"]).optional(),
-  measurementUnits: z.enum(["metric", "imperial"]).optional(),
-  height: z.number().min(1).optional(),
-  weight: z.number().min(1).optional(),
-  bodyFat: z.number().min(0).max(100).optional(),
-
-  // Section 2
-  availableDays: z.array(z.string()).optional(),
-  maxSessionsPerWeek: z.number().min(1).optional(),
-  sessionDuration: z.enum(["30", "45", "60", "75", "90"]).optional(),
-  timeOfDay: z.enum(["morning", "afternoon", "evening"]).optional(),
-
-  // Section 3
-  goal: z.string().optional(),
+  // Core questions
   experience: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-  injuries: z.string().optional(),
-
-  // Section 4
+  goal: z.string().optional(),
+  availableDays: z.array(z.string()).optional(),
+  sessionDuration: z.enum(["30", "45", "60", "75", "90"]).optional(),
   exerciseType: z.enum(["strength", "cardio", "hiit", "flexibility", "other"]).optional(),
   equipment: z.array(z.string()).optional(),
-  notes: z.string().optional(),
+  injuriesAndNotes: z.string().optional(),
 });
 
 export default function ProfileForm() {
@@ -51,26 +39,19 @@ export default function ProfileForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      age: undefined,
-      gender: undefined,
-      measurementUnits: "metric",
-      height: undefined,
-      weight: undefined,
-      bodyFat: undefined,
-      availableDays: [],
-      maxSessionsPerWeek: undefined,
-      sessionDuration: undefined,
-      timeOfDay: undefined,
-      goal: undefined,
       experience: undefined,
-      injuries: undefined,
+      goal: undefined,
+      availableDays: [],
+      sessionDuration: undefined,
       exerciseType: undefined,
       equipment: [],
-      notes: undefined,
+      injuriesAndNotes: undefined,
     },
   });
 
-  const measurementUnits = form.watch("measurementUnits");
+  // const measurementUnits = form.watch("measurementUnits");
+
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
@@ -122,241 +103,50 @@ export default function ProfileForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="mb-4 flex">
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+          onClick={() => router.push('/dashboard')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Button>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Section 1 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+          {/* Section 1: Workout Preferences */}
+          <Card className="rounded-xl shadow-md border border-gray-200 overflow-hidden transition-all hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-100 p-2 rounded-lg">
+                  <Target className="h-5 w-5 text-emerald-600" />
+                </div>
+                <CardTitle className="text-xl font-bold text-gray-800">Workout Preferences</CardTitle>
+              </div>
+              <CardDescription>
+                Tell us about your fitness goals and experience
+              </CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Age</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)} />
-                    </FormControl>
-                    {form.formState.errors.age && <FormMessage>{form.formState.errors.age.message}</FormMessage>}
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gender</FormLabel>
-                    <Select onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="measurementUnits"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Measurement Units</FormLabel>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex gap-4"
-                    >
-                      <FormItem className="flex items-center gap-2">
-                        <FormControl>
-                          <RadioGroupItem value="metric" />
-                        </FormControl>
-                        <FormLabel>Metric (kg/cm)</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center gap-2">
-                        <FormControl>
-                          <RadioGroupItem value="imperial" />
-                        </FormControl>
-                        <FormLabel>Imperial (lbs/in)</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Height ({measurementUnits === "metric" ? "cm" : "in"})
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Weight ({measurementUnits === "metric" ? "kg" : "lbs"})
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)}  />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="bodyFat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Body Fat Percentage</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value? parseInt(e.target.value): undefined)} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Section 2 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Availability</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="availableDays"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Available Days</FormLabel>
-                    <div className="grid grid-cols-2 gap-2">
-                      {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
-                        <FormItem key={day} className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(day)}
-                              onCheckedChange={(checked) => {
-                                const value = field.value ?? [];
-                                return checked
-                                  ? field.onChange([...value, day])
-                                  : field.onChange(value.filter((val) => val !== day));
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">{day}</FormLabel>
-                        </FormItem>
-                      ))}
-                    </div>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="maxSessionsPerWeek"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Sessions per Week</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} min={1} max={form.watch("availableDays")?.length || 7} onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="sessionDuration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Session Duration (minutes)</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select duration" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="30">30</SelectItem>
-                          <SelectItem value="45">45</SelectItem>
-                          <SelectItem value="60">60</SelectItem>
-                          <SelectItem value="75">75</SelectItem>
-                          <SelectItem value="90">90</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="timeOfDay"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preferred Time of Day</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select time of day" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="morning">Morning</SelectItem>
-                          <SelectItem value="afternoon">Afternoon</SelectItem>
-                          <SelectItem value="evening">Evening</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Section 3 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Workout Preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
               <FormField
                 control={form.control}
                 name="goal"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workout Goal</FormLabel>
+                    <FormLabel className="font-medium text-gray-700">Workout Goal</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
                             <SelectValue placeholder="Select goal" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="rounded-lg">
                           <SelectItem value="Weight Loss">Weight Loss</SelectItem>
-                          <SelectItem value="Muscle Gain and Toning">Muscle Gain and Toning</SelectItem>
-                          <SelectItem value="Improved Cardiovascular Health">Improved Cardiovascular Health</SelectItem>
-                          <SelectItem value="Enhanced Athletic Performance">Enhanced Athletic Performance</SelectItem>
-                          <SelectItem value="Increased Flexibility and Mobility">Increased Flexibility and Mobility</SelectItem>
-                          <SelectItem value="Stress Reduction and Mental Health">Stress Reduction and Mental Health</SelectItem>
-                          <SelectItem value="General Health">General Health</SelectItem>
+                          <SelectItem value="Muscle Gain">Muscle Gain</SelectItem>
+                          <SelectItem value="Improved Fitness">Improved Fitness</SelectItem>
+                          <SelectItem value="Strength">Strength</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -368,15 +158,15 @@ export default function ProfileForm() {
                 name="experience"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workout Experience</FormLabel>
+                    <FormLabel className="font-medium text-gray-700">Workout Experience</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
                             <SelectValue placeholder="Select experience" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="rounded-lg">
                           <SelectItem value="beginner">Beginner</SelectItem>
                           <SelectItem value="intermediate">Intermediate</SelectItem>
                           <SelectItem value="advanced">Advanced</SelectItem>
@@ -388,39 +178,18 @@ export default function ProfileForm() {
               />
               <FormField
                 control={form.control}
-                name="injuries"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Injuries or Limitations</FormLabel>
-                    <FormControl>
-                      <Input type="text" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Section 4 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Exercise Preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
                 name="exerciseType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preferred Type of Exercise</FormLabel>
+                    <FormLabel className="font-medium text-gray-700">Preferred Type of Exercise</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
                             <SelectValue placeholder="Select exercise type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="rounded-lg">
                           <SelectItem value="strength">Strength</SelectItem>
                           <SelectItem value="cardio">Cardio</SelectItem>
                           <SelectItem value="hiit">HIIT</SelectItem>
@@ -437,9 +206,9 @@ export default function ProfileForm() {
                 name="equipment"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Access to Equipment</FormLabel>
+                    <FormLabel className="font-medium text-gray-700">Access to Equipment</FormLabel>
                     <div className="grid grid-cols-2 gap-2">
-                      {["Large Gym", "Small Gym", "Home Equipment", "Bodyweight Only"].map((equipment) => (
+                      {["Gym", "Home Equipment", "Bodyweight Only"].map((equipment) => (
                         <FormItem key={equipment} className="flex items-center space-x-2">
                           <FormControl>
                             <Checkbox
@@ -450,6 +219,7 @@ export default function ProfileForm() {
                                   ? field.onChange([...value, equipment])
                                   : field.onChange(value.filter((val) => val !== equipment));
                               }}
+                              className="text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
                             />
                           </FormControl>
                           <FormLabel className="text-sm font-normal">{equipment}</FormLabel>
@@ -459,14 +229,72 @@ export default function ProfileForm() {
                   </FormItem>
                 )}
               />
+            </CardContent>
+          </Card>
+
+          {/* Section 2: Availability */}
+          <Card className="rounded-xl shadow-md border border-gray-200 overflow-hidden transition-all hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl font-bold text-gray-800">Availability</CardTitle>
+              </div>
+              <CardDescription>
+                Let us know when you can work out
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
               <FormField
                 control={form.control}
-                name="notes"
+                name="availableDays"
                 render={({ field }) => (
-                  <FormItem className="col-span-1 md:col-span-2">
-                    <FormLabel>Other Notes</FormLabel>
+                  <FormItem>
+                    <FormLabel className="font-medium text-gray-700">Available Days</FormLabel>
+                    <div className="grid grid-cols-2 gap-2">
+                      {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                        <FormItem key={day} className="flex items-center space-x-2">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(day)}
+                              onCheckedChange={(checked) => {
+                                const value = field.value ?? [];
+                                return checked
+                                  ? field.onChange([...value, day])
+                                  : field.onChange(value.filter((val) => val !== day));
+                              }}
+                              className="text-emerald-500 border-gray-300 rounded focus:ring-emerald-500"
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">{day}</FormLabel>
+                        </FormItem>
+                      ))}
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="sessionDuration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-medium text-gray-700">Session Duration (minutes)</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Select onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
+                            <SelectValue placeholder="Select duration" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="rounded-lg">
+                          <SelectItem value="30">30</SelectItem>
+                          <SelectItem value="45">45</SelectItem>
+                          <SelectItem value="60">60</SelectItem>
+                          <SelectItem value="75">75</SelectItem>
+                          <SelectItem value="90">90</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                   </FormItem>
                 )}
@@ -474,33 +302,111 @@ export default function ProfileForm() {
             </CardContent>
           </Card>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Submitting..." : "Submit"}
-            </Button>
+          {/* Section 3: Additional Information */}
+          <Card className="rounded-xl shadow-md border border-gray-200 overflow-hidden transition-all hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <Dumbbell className="h-5 w-5 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl font-bold text-gray-800">Additional Information</CardTitle>
+              </div>
+              <CardDescription>
+                Any injuries or other notes we should consider
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <FormField
+                control={form.control}
+                name="injuriesAndNotes"
+                render={({ field }) => (
+                  <FormItem className="mb-4">
+                    <FormLabel className="font-medium text-gray-700">Injuries, Limitations, or other constraints</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        className="rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 min-h-[100px]"
+                        placeholder="Examples: Lower back pain, knee injury, prefer morning workouts, need low-impact exercises, etc."
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Button 
+            type="submit" 
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-8 py-6 text-lg rounded-xl transition-all shadow-lg hover:shadow-xl"
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+                Generating Plan...
+              </div>
+            ) : (
+              "Generate Workout Plan"
+            )}
+          </Button>
         </form>
       </Form>
       {workoutPlan && (
-        <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-          {/* <pre>{JSON.stringify(workoutPlan)}</pre> */}
-          <h2 className="text-2xl font-bold mb-4 text-center">Generated Workout Plan</h2>
-          <p className="text-lg font-semibold mb-6 text-center">{workoutPlan.workoutPlanName}</p>
-          <div className="grid gap-6 md:grid-cols-2">
-            {workoutPlan.sessions.map((session, index) => (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-2">{session.dayName} ({session.day})</h3>
-                  {session.exercises.map((exercise, idx) => (
-                    <div key={idx} className="border-b pb-2 mb-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">{exercise.name}</span>
-                        <span>{exercise.sets} sets x {exercise.repetitions} reps</span>
+        <div className="mt-12 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-6 text-white">
+            <h2 className="text-2xl font-bold mb-2 text-center">Your Personalized Workout Plan</h2>
+            <p className="text-lg font-medium text-emerald-50 text-center">{workoutPlan.workoutPlanName}</p>
+          </div>
+          
+          <div className="p-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {workoutPlan.sessions.map((session, index) => (
+                <div key={index} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 p-4 border-b border-gray-200">
+                    <div className="flex flex-col">
+                      <div className="flex items-center text-emerald-600 text-sm font-medium">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span>{session.day}</span>
                       </div>
-                      {exercise.description && (
-                        <p className="text-sm text-gray-600 mt-1">{exercise.description}</p>
-                      )}
+                      <h3 className="text-lg font-bold text-gray-800 mt-0.5">{session.dayName}</h3>
                     </div>
-                  ))}
-              </div>
-            ))}
+                  </div>
+                  
+                  <div className="p-4">
+                    {session.exercises.map((exercise, idx) => (
+                      <div key={idx} className={`py-3 ${idx !== session.exercises.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-semibold text-gray-800">{exercise.name}</span>
+                          <span className="text-sm bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                            {exercise.sets} sets × {exercise.repetitions} reps
+                          </span>
+                        </div>
+                        {exercise.description && (
+                          <p className="text-sm text-gray-600">{exercise.description}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 p-4 border-t border-gray-200 flex justify-center">
+            <p className="text-sm text-gray-500">
+              This plan is tailored to your fitness goals and preferences.
+            </p>
+          </div>
+
+          <div className="mt-6 mb-12 flex justify-center">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              onClick={() => router.push('/dashboard')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Button>
           </div>
         </div>
       )}

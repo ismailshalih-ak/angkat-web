@@ -13,7 +13,7 @@ import {
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
 import { User } from '@supabase/supabase-js';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User as UserIcon, Settings, LogOut } from 'lucide-react';
 
 export default function Nav() {
   const [supabase] = useState(() => createClient());
@@ -52,78 +52,120 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-white shadow-md md:px-6">
-        {/* Left: App Icon and Mobile Menu Button */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-          <div className="flex items-center">
-            <Image src="/icon.png" alt="App Icon" width={32} height={32} className="h-8 w-8" />
-            <span className="ml-2 text-xl font-bold">Angkat</span>
-          </div>
-        </div>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: App Icon and Brand */}
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden mr-2 text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+              
+              <div 
+                className="flex items-center cursor-pointer" 
+                onClick={() => router.push('/')}
+              >
+                <div className="p-1.5 rounded-lg mr-2">
+                  <Image src="/icon.png" alt="Angkat" width={28} height={28} className="h-7 w-7" />
+                </div>
+                <span className="text-xl font-bold text-gray-800">Angkat</span>
+              </div>
+            </div>
 
-        {/* Middle: Desktop Navigation */}
-        <div className="hidden md:flex gap-4 mx-auto">
-          {navLinks.map((link) => (
-            <Button
-              key={link.name}
-              variant="link"
-              onClick={() => {
-                router.push(link.path);
-                setIsMenuOpen(false);
-              }}
-            >
-              {link.name}
-            </Button>
-          ))}
-        </div>
-
-        {/* Right: Auth Buttons / Account Menu */}
-        <div className="flex items-center gap-2">
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar>
-                  <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                  <AvatarFallback>{getInitials(user)}</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={async () => {
-                  await supabase.auth.signOut();
-                  router.push('/');
-                }}>
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button
-              variant="ghost"
-              className="hidden md:inline-flex"
-              onClick={() => router.push('/sign-in')}
-            >
-              Sign In
-            </Button>
-          )}
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-lg md:hidden">
-            <div className="flex flex-col p-2">
+            {/* Middle: Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
               {navLinks.map((link) => (
                 <Button
                   key={link.name}
                   variant="ghost"
-                  className="justify-start"
+                  className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg px-4"
+                  onClick={() => router.push(link.path)}
+                >
+                  {link.name}
+                </Button>
+              ))}
+            </div>
+
+            {/* Right: Auth Buttons / Account Menu */}
+            <div className="flex items-center">
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="rounded-full p-0 h-10 w-10 overflow-hidden">
+                      <Avatar className="h-10 w-10 border-2 border-emerald-100">
+                        <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                        <AvatarFallback className="bg-emerald-100 text-emerald-700 font-medium">
+                          {getInitials(user)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl shadow-lg border border-gray-200">
+                    <div className="px-2 py-1.5 mb-1 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">{user.user_metadata?.firstName || user.email}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center gap-2 rounded-lg hover:bg-gray-100"
+                      onClick={() => router.push('/dashboard')}
+                    >
+                      <UserIcon className="h-4 w-4 text-gray-500" />
+                      <span>Profile</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center gap-2 rounded-lg hover:bg-gray-100"
+                      onClick={() => router.push('/dashboard/settings')}
+                    >
+                      <Settings className="h-4 w-4 text-gray-500" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center gap-2 rounded-lg text-red-600 hover:bg-red-50 mt-1"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        router.push('/');
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    className="hidden md:inline-flex text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                    onClick={() => router.push('/sign-in')}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-sm"
+                    onClick={() => router.push('/sign-up')}
+                  >
+                    Get Started
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 bg-white">
+            <div className="px-4 py-3 space-y-1">
+              {navLinks.map((link) => (
+                <Button
+                  key={link.name}
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
                   onClick={() => {
                     router.push(link.path);
                     setIsMenuOpen(false);
@@ -134,8 +176,7 @@ export default function Nav() {
               ))}
               {!user && (
                 <Button
-                  variant="default"
-                  className="mt-2"
+                  className="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-sm"
                   onClick={() => {
                     router.push('/sign-in');
                     setIsMenuOpen(false);
@@ -148,7 +189,7 @@ export default function Nav() {
           </div>
         )}
       </nav>
-      <div className="h-16"></div>
+      <div className="h-16"></div> {/* Spacer to prevent content from hiding under fixed nav */}
     </>
   );
 }
