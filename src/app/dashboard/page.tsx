@@ -209,7 +209,7 @@ export default function Page() {
                 </CardHeader>
                 <CardContent className="p-5">
                   <p className="text-gray-600 mb-4">
-                    View your past workouts and see how you've improved over time.
+                    View your past workouts and see how you&apos;ve improved over time.
                   </p>
                   <Button 
                     className="w-full bg-purple-500 hover:bg-purple-600 text-white"

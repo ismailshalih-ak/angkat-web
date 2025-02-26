@@ -154,7 +154,7 @@ export default function Page() {
                   Free During Development
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Get full access to all premium features while we're building Angkat.
+                  Get full access to all premium features while we&apos;re building Angkat.
                 </p>
               </div>
               
