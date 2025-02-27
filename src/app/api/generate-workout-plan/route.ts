@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const response = await openai.chat.completions.create({
     model: "google/gemini-2.0-flash-001",
     messages: [
-      { role: "system", content: "Create a weekly workout plan for based on given data" },
+      { role: "system", content: 'Using the provided user data—including fitness level, goals, available equipment, and desired workout frequency—create a detailed weekly workout plan. The plan should outline daily exercise routines with specific sets, reps, and rest intervals, include modifications for different fitness levels, and do not create any sessions on designated rest days.' },
       { role: "user", content: JSON.stringify(requestBody)},
     ],
     response_format: zodResponseFormat(weeklyWorkoutPlanSchema, "workoutPlan"),
