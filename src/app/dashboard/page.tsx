@@ -146,7 +146,7 @@ export default function Page() {
                         </CardHeader>
                         <CardContent className="p-4 pt-3">
                           <ul className="space-y-2">
-                            {session.exercises.slice(0, 3).map((exercise, idx) => (
+                            {session.exercises.map((exercise, idx) => (
                               <li key={idx} className="text-sm">
                                 <div className="flex justify-between">
                                   <span className="font-medium">{exercise.name}</span>
@@ -154,38 +154,13 @@ export default function Page() {
                                 </div>
                               </li>
                             ))}
-                            {session.exercises.length > 3 && (
-                              <li className="text-xs text-gray-500 italic">
-                                +{session.exercises.length - 3} more exercises
-                              </li>
-                            )}
                           </ul>
                         </CardContent>
-                        <CardFooter className="p-3 border-t border-gray-100 h-14 flex items-center">
-                          <Button
-                            variant="ghost"
-                            className="w-full text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-sm"
-                            onClick={() => router.push(`/dashboard/workout/${session.day.toLowerCase()}`)}
-                          >
-                            View Workout
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                          </Button>
-                        </CardFooter>
                       </Card>
                     ))}
                 </div>
               </CardContent>
-              <CardFooter className="bg-gray-50 border-t border-gray-200 p-4">
-                <Button 
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
-                  onClick={() => router.push('/dashboard/workout')}
-                >
-                  View Full Workout Plan
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </CardFooter>
             </Card>
-
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200 p-5">
