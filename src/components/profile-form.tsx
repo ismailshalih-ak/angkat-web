@@ -397,20 +397,16 @@ export default function ProfileForm() {
               This plan is tailored to your fitness goals and preferences.
             </p>
           </div>
-
-          <div className="mt-6 mb-12 flex justify-center">
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-              onClick={() => router.push('/dashboard')}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </div>
         </div>
       )}
-
+      <Button 
+        variant="outline" 
+        className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+        onClick={() => router.push('/dashboard')}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Dashboard
+      </Button>
     </div>
   );
 }
