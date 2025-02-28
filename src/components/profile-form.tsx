@@ -21,7 +21,7 @@ import { useState } from "react";
 import { WeeklyWorkoutPlan } from "@/schemas/workout-plan";
 import { ArrowLeft, Calendar, Dumbbell, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+import * as Sentry from "@sentry/nextjs";
 
 const formSchema = z.object({
   // Core questions
@@ -62,7 +62,7 @@ export default function ProfileForm() {
       setWorkoutPlan(resWorkoutPlan);
       saveWorkoutPlan(resWorkoutPlan);
     } catch (error) {
-      console.error(error);
+      Sentry.captureException(error)
     } finally {
       setLoading(false);
     }
@@ -79,6 +79,7 @@ export default function ProfileForm() {
     });
 
     if (!response.ok) {
+      Sentry.captureException(error)
       throw new Error('Failed to generate workout plan');
     }
 
