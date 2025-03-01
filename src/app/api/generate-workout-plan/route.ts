@@ -5,6 +5,8 @@ import { createClient } from "@/utils/supabase/server";
 import { weeklyWorkoutPlanSchema } from "@/schemas/workout-plan";
 import * as Sentry from "@sentry/nextjs";
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
