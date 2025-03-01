@@ -69,23 +69,25 @@ export default function ProfileForm() {
   };
 
   const generateWorkoutPlan = async (data: z.infer<typeof formSchema>)=> {
+    try{
+      const response = await fetch('/api/generate-workout-plan', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
   
-    const response = await fetch('/api/generate-workout-plan', {
-      method: 'POST',
-      headers: {
-      'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      Sentry.captureException(error)
-      throw new Error('Failed to generate workout plan');
+      if (!response.ok) {
+        throw new Error('Failed to generate workout plan');
+      }
+  
+      const resWorkoutPlan = await response.json();
+    
+      return resWorkoutPlan;
+    } catch(error) {
+      Sentry.captureException(error);
     }
-
-    const resWorkoutPlan = await response.json();
-  
-    return resWorkoutPlan;
   };
 
   const saveWorkoutPlan = async (workoutPlan: WeeklyWorkoutPlan) => {
