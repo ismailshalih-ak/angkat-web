@@ -22,7 +22,15 @@ export default function SignIn() {
       }
     }
 
-    getSession()
+    getSession();
+
+    // Detect in-app browser
+    const isInAppBrowser = navigator.userAgent.match(/(Instagram|Facebook|Line)\//i);
+
+    if (isInAppBrowser) {
+      // Redirect to default browser
+      window.open(window.location.href, '_system');
+    }
   }, [router, supabase])
 
   const handleSignInWithGoogle = async () => {
