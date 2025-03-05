@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json(workoutPlan);
   } catch(error) {
-    Sentry.captureException(error)
+    Sentry.captureException(error);
+    // Should return error response
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
