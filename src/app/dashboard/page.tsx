@@ -1,27 +1,23 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { WeeklyWorkoutPlan } from "@/schemas/workout-plan";
 import { Button } from "@/components/ui/button";
-import { Calendar, Dumbbell, ChevronRight, Plus, ArrowRight } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Calendar, Dumbbell, Plus } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { UnderConstructionTooltip } from '@/components/under-construction-tooltip';
+import { useWorkoutPlan } from "@/context/WorkoutPlanContext";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Page() {
-  const [supabase] = useState(() => createClient());
-  const [user, setUser] = useState<User|null>(null);
-  const [workoutPlan, setWorkoutPlan] = useState<WeeklyWorkoutPlan|null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { workoutPlan, loading } = useWorkoutPlan();
 
   useEffect(() => {
-    async function getUserData() {
-      setLoading(true);
+    async function checkUser() {
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
 
       if (!user) {
         router.push("/sign-in");
@@ -38,35 +34,10 @@ export default function Page() {
           window.history.replaceState({}, document.title, url.toString());
         }
       }
-      setLoading(false);
     }
-
-    getUserData();
-  }, [supabase, router]);
-  
-  useEffect(() => {
-    async function fetchLatestWorkoutPlan() {
-      if (user) {
-        const { data, error } = await supabase
-          .from('workout_plans')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (error) {
-          console.error('Error fetching workout plan:', error);
-        } else if (data) {
-          setWorkoutPlan(data.generated_workout_plan);
-        }
-      }
-    }
-
-    if (user) {
-      fetchLatestWorkoutPlan();
-    }
-  }, [supabase, user]);
+    
+    checkUser();
+  }, [router]);
 
   if (loading) {
     return (
@@ -81,7 +52,7 @@ export default function Page() {
       <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-12">
         <div className="max-w-5xl mx-auto px-6">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Welcome{user?.user_metadata?.firstName ? `, ${user.user_metadata.firstName}` : ''}!
+            Welcome!
           </h1>
           <p className="text-emerald-50 text-lg">
             Track your fitness journey and achieve your goals
@@ -145,16 +116,14 @@ export default function Page() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-4 pt-3">
-                          <ul className="space-y-2">
-                            {session.exercises.map((exercise, idx) => (
-                              <li key={idx} className="text-sm">
-                                <div className="flex justify-between">
-                                  <span className="font-medium">{exercise.name}</span>
-                                  <span className="text-gray-500">{exercise.sets} × {exercise.repetitions}</span>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                          {session.exercises.map((exercise, idx) => (
+                            <div key={idx} className="text-sm">
+                              <div className="flex justify-between">
+                                <span className="font-medium">{exercise.name}</span>
+                                <span className="text-gray-500">{exercise.sets} × {exercise.repetitions}</span>
+                              </div>
+                            </div>
+                          ))}
                         </CardContent>
                       </Card>
                     ))}
