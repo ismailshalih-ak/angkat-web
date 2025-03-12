@@ -13,9 +13,11 @@ export const signOutAction = async () => {
   return redirect("/sign-in");
 };
 
+import { ProfileData } from "@/schemas/profile-data";
+
 interface UserData {
   workoutPlan: WeeklyWorkoutPlan | null;
-  profileData: any | null;
+  profileData: Partial<ProfileData> | null;
 }
 
 export const getUserDataFromDatabase = async (): Promise<UserData | null> => {

@@ -3,10 +3,11 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { getUserDataFromDatabase } from '@/app/actions';
 import { WeeklyWorkoutPlan } from '@/schemas/workout-plan';
+import { ProfileData } from '@/schemas/profile-data';
 
 interface WorkoutPlanContextType {
   workoutPlan: WeeklyWorkoutPlan | null;
-  profileData: any | null;
+  profileData: Partial<ProfileData> | null;
   loading: boolean;
 }
 
@@ -14,7 +15,7 @@ const WorkoutPlanContext = createContext<WorkoutPlanContextType | undefined>(und
 
 export const WorkoutPlanProvider = ({ children }: { children: React.ReactNode }) => {
   const [workoutPlan, setWorkoutPlan] = useState<WeeklyWorkoutPlan | null>(null);
-  const [profileData, setProfileData] = useState<any | null>(null);
+  const [profileData, setProfileData] = useState<Partial<ProfileData> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
