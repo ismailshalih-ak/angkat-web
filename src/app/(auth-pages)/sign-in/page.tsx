@@ -29,7 +29,9 @@ export default function SignIn() {
 
     if (isInAppBrowser) {
       // Redirect to default browser
-      window.open(window.location.href, '_system');
+      if (typeof window !== 'undefined') {
+        window.open(window.location.href, '_blank');
+      }
     }
   }, [router, supabase])
 
